@@ -1,4 +1,4 @@
-# InfluxDB Covid Vaccination Data with Python
+# InfluxDB 2.0.4 Covid Vaccination Data with Python
 This Project is using Python 3.8.5 and InfluxDB 2.0.4. A Docker Container is used to run the InfluxDB Server. The use of a Python virtual environment is recommended to install all Python dependencies.
 
 ---
@@ -21,11 +21,16 @@ https://impfdashboard.de/daten
 1. Install Python from https://www.python.org/
 2. Install Docker Desktop from https://www.docker.com/get-started (Maybe a Restart is needed to run Docker commands from console)
 3. Clone this repository and navigate to the project directory
-4. Optional: Create a virtual environment and run the `activate.bat` script of your virtual environment
+4. Optional: Create a virtual environment (venv) and run the `activate.bat` script to activate your venv
 ```bash
-python -m venv venv
-.\venv\Scripts\activate.bat
+python -m venv venv             # create your venv
+.\venv\Scripts\activate.bat     # activate your venv
 ```
+&ensp;&ensp;&ensp; Info: You can deactivate your venv by running (don't do that now)
+```bash
+deactivate
+```
+
 5. Install Python dependencies from `requirements.txt`
 ```bash
 pip install -r requirements.txt
