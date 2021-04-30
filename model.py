@@ -1,3 +1,6 @@
 class Model:
     def __init__(self):
-        print("Hello from model")
+        pass
+
+    def execute_query(self, button):
+        return f"Execute {button} query"
