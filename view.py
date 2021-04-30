@@ -4,11 +4,14 @@ from tkinter import ttk
 
 
 class View(tk.Tk):
-    def __init__(self):
+    def __init__(self, controller):
         super().__init__()
         self.title("My InfluxDB GUI")
 
+        self.controller = controller
         self._category_buttons = []
+        self._category_button_names = ["Create", "Read", "Update", "Delete"]
+
         self._create_frames()
         self._create_category_buttons()
         print("Hello from view")
@@ -27,16 +30,23 @@ class View(tk.Tk):
         self.right_frame.pack(side='left')
 
     def _create_category_buttons(self):
-        btn = ttk.Button(self.left_frame, text='Create')
-        self._category_buttons.append(btn)
+        for name in self._category_button_names:
+            btn = ttk.Button(self.left_frame, text=name,
+                             command=(
+                                 lambda button=name: self.controller.category_button_clicked(
+                                     button)
+                             )
+                             )
+            btn.pack()
+            self._category_buttons.append(btn)
 
-        btn = ttk.Button(self.left_frame, text='Read')
-        self._category_buttons.append(btn)
+        #btn = ttk.Button(self.left_frame, text='Read')
+        # self._category_buttons.append(btn)
 
-        btn = ttk.Button(self.left_frame, text='Update')
-        self._category_buttons.append(btn)
+        #btn = ttk.Button(self.left_frame, text='Update')
+        # self._category_buttons.append(btn)
 
-        btn = ttk.Button(self.left_frame, text='Delete')
-        self._category_buttons.append(btn)
+        #btn = ttk.Button(self.left_frame, text='Delete')
+        # self._category_buttons.append(btn)
 
-        [btn.pack() for btn in self._category_buttons]
+        #[btn.pack() for btn in self._category_buttons]
