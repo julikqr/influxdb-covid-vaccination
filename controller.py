@@ -27,6 +27,8 @@ class Controller:
         if self.dbstatus:
             if button == "Create vaccine deliveries":
                 self.create_vaccine_deliveries()
+            if button == "Read - Germany BW vaccine deliveries":
+                self.read_vaccine_deliveries_debw()
             if button == "Delete vaccine deliveries":
                 self.model.delete("vaccine_delivery")
         else:
@@ -37,3 +39,12 @@ class Controller:
             self.view.set_status("Vaccine delivery data was written to DB")
         else:
             self.view.set_status("Could not write Vaccine delivery data to DB")
+
+    def read_vaccine_deliveries_debw(self):
+        tables = self.model.read_vaccine_deliveries_debw()
+        self.view.set_status("Read Germany BW vaccine deliveries")
+        for table in tables:
+            print()
+            for record in table.records:
+                print(
+                    f'Time: {record.values["_time"]}; region: {record.values["region"]}; impfstoff: {record.values["impfstoff"]}; Dosen: {record.values["_value"]}')

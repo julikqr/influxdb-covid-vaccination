@@ -46,6 +46,17 @@ class Model:
         return created
         print("Data Created; Closed client")
 
+    def read_vaccine_deliveries_debw(self):
+        query_client = self.client.query_api()
+        query = f'''from(bucket:"{self.bucket}")
+            |> range(start: -90d)
+            |> filter(fn: (r) =>
+                r.region == "DE-BW" and
+                r._field == "dosen"
+            )
+        '''
+        return query_client.query(query)
+
     def delete(self, measurement):
         deleted = False
         try:
