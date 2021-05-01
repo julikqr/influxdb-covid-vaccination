@@ -8,7 +8,6 @@ from controller import Controller
 
 def main():
     controller = Controller()
-    controller.start_gui()
 
     # setup authentication
     #token = "my-super-secret-auth-token"
@@ -45,5 +44,4 @@ def main():
 
 
 if __name__ == "__main__":
-    print("Hello World")
     main()
