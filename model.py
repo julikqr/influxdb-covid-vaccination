@@ -11,6 +11,7 @@ class Model:
         self.bucket = bucket
         self.org = org
         self.dburl = url
+        self.start = "2020-01-01T00:00:00Z"
 
         self.url_vaccine_deliveries = "https://impfdashboard.de/static/data/germany_deliveries_timeseries_v2.tsv"
 
@@ -49,22 +50,21 @@ class Model:
     def read_vaccine_deliveries_debw(self):
         query_client = self.client.query_api()
         query = f'''from(bucket:"{self.bucket}")
-            |> range(start: -90d)
+            |> range(start: -220d, stop: -200d)
             |> filter(fn: (r) =>
                 r.region == "DE-BW" and
                 r._field == "dosen"
             )
         '''
-        return query_client.query(query)
+        return query_client.query_data_frame(query)
 
     def delete(self, measurement):
         deleted = False
         try:
             delete_client = self.client.delete_api()
-            start = "2020-01-01T00:00:00Z"
             stop = datetime.now(UTC)
             delete_client.delete(
-                start, stop, f'_measurement={measurement}', self.bucket, self.org)
+                self.start, stop, f'_measurement={measurement}', self.bucket, self.org)
             deleted = True
         except Exception as exc:
             print(exc)

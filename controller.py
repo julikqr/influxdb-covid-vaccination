@@ -43,8 +43,11 @@ class Controller:
     def read_vaccine_deliveries_debw(self):
         tables = self.model.read_vaccine_deliveries_debw()
         self.view.set_status("Read Germany BW vaccine deliveries")
-        for table in tables:
-            print()
-            for record in table.records:
-                print(
-                    f'Time: {record.values["_time"]}; region: {record.values["region"]}; impfstoff: {record.values["impfstoff"]}; Dosen: {record.values["_value"]}')
+        print(tables.head())
+        print(tables.size)
+        self.view.plot_pandas("plot")
+        # for table in tables:
+        #    print()
+        #    for record in table.records:
+        #        print(
+        #            f'Time: {record.values["_time"]}; region: {record.values["region"]}; impfstoff: {record.values["impfstoff"]}; Dosen: {record.values["_value"]}')

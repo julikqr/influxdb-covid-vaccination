@@ -1,6 +1,8 @@
 
 import tkinter as tk
 from tkinter import ttk
+import pandas as pd
+from matplotlib import pyplot as plt
 
 
 class View(tk.Tk):
@@ -47,3 +49,10 @@ class View(tk.Tk):
                              )
                              )
             btn.pack()
+
+    def plot_pandas(self, dataframe):
+        print("plot pandas")
+        x = [1, 2, 3, 4]
+        y = [1, 4, 9, 16]
+        plt.plot(x, y)
+        plt.show()
