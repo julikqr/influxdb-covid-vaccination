@@ -49,7 +49,6 @@ class Model:
         print("Data Created; Closed client")
 
     def read_vaccine_deliveries_debw(self):
-        query_client = self.client.query_api()
         stop = datetime.now(UTC).isoformat()
         query = f'''from(bucket:"{self.bucket}")
             |> range(start: {self.start}, stop: {stop})
@@ -58,6 +57,26 @@ class Model:
                 r._field == "dosen"
             )
         '''
+        return self.execute_query(query)
+
+    def read_states_most_vaccines(self):
+        stop = datetime.now(UTC).isoformat()
+        query = f'''from(bucket:"{self.bucket}")
+            |> range(start: {self.start}, stop: {stop})
+            |> filter(fn: (r) =>
+                r._field == "dosen"
+            )
+        '''
+        states = dict()
+
+        df_result = self.execute_query(query)
+        regions_list = df_result.region.unique()
+        for region in regions_list:
+            states[region] = df_result[df_result.region == region]._value.sum()
+        return states
+
+    def execute_query(self, query):
+        query_client = self.client.query_api()
         return query_client.query_data_frame(query)
 
     def delete(self, measurement):
@@ -71,6 +90,3 @@ class Model:
         except Exception as exc:
             print(exc)
         return deleted
-
-    def execute_query(self, button):
-        return f"Execute {button} query"

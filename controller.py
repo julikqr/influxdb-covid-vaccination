@@ -21,8 +21,6 @@ class Controller:
             print("Connection to InfluxDb failed")
 
     def button_clicked(self, button):
-        status = self.model.execute_query(button)
-        self.view.set_status(status)
 
         if self.dbstatus:
             if button == "Create vaccine deliveries":
@@ -31,6 +29,8 @@ class Controller:
                 self.read_vaccine_deliveries_debw()
             if button == "Delete vaccine deliveries":
                 self.model.delete("vaccine_delivery")
+            if button == "Read - German states with most vaccines":
+                self.read_states_most_vaccines()
         else:
             self.view.set_status("DB COnnection failed")
 
@@ -46,12 +46,14 @@ class Controller:
             self.view.set_status("Read Germany BW vaccine deliveries failed")
         else:
             self.view.set_status("Read Germany BW vaccine deliveries")
-            self.view.plot_df(result_df)
-        # print(tables.head())
-        # print(tables.size)
-        # self.view.plot_pandas("plot")
-        # for table in tables:
-        #    print()
-        #    for record in table.records:
-        #        print(
-        #            f'Time: {record.values["_time"]}; region: {record.values["region"]}; impfstoff: {record.values["impfstoff"]}; Dosen: {record.values["_value"]}')
+            self.view.plot_df(
+                result_df, "Germany Baden-Wuerttemberg vaccine deliveries", "vaccines")
+
+    def read_states_most_vaccines(self):
+        result_dict = self.model.read_states_most_vaccines()
+        print(len(result_dict))
+        if len(result_dict) == 0:
+            self.view.set_status("Read states with most vaccines failed")
+        else:
+            self.view.set_status("Read states with most vaccines")
+            self.view.plot_result(result_dict)

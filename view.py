@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 import pandas as pd
 from matplotlib import pyplot as plt
+import numpy as np
 
 
 class View(tk.Tk):
@@ -12,7 +13,7 @@ class View(tk.Tk):
 
         self.controller = controller
         self._category_button_names = [
-            "Create vaccine deliveries", "Read - Germany BW vaccine deliveries", "Update", "Delete vaccine deliveries"]
+            "Create vaccine deliveries", "Read - Germany BW vaccine deliveries", "Read - German states with most vaccines", "Delete vaccine deliveries"]
         self.status = tk.StringVar()
 
         self.title("My InfluxDB GUI")
@@ -51,12 +52,22 @@ class View(tk.Tk):
                              )
             btn.pack()
 
-    def plot_df(self, df):
+    def plot_df(self, df, title, ylabel):
+        plt.clf()
         print("plot dataframe")
         list_vaccines = df.impfstoff.unique()
         for vaccine in list_vaccines:
             plt.plot(df[df.impfstoff == vaccine]._time,
                      df[df.impfstoff == vaccine]._value)
-        print(df)
+        plt.xticks(rotation=45)
+        plt.ylabel(ylabel)
         plt.legend(list_vaccines)
+        plt.title(title)
+        plt.show()
+
+    def plot_result(self, results):
+        print(results)
+        plt.clf()
+        plt.bar(range(len(results)), list(results.values()), align='center')
+        plt.xticks(range(len(results)), list(results.keys()))
         plt.show()
