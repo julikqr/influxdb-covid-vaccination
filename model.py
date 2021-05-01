@@ -16,6 +16,7 @@ class Model:
         self.url_vaccine_deliveries = "https://impfdashboard.de/static/data/germany_deliveries_timeseries_v2.tsv"
 
     def connect_to_db(self):
+        print(f"Connecting to {self.dburl} InfluxDB...")
         self.client = InfluxDBClient(
             url=self.dburl, token=self.token, org=self.org)
         return self.test_connection()
@@ -49,8 +50,9 @@ class Model:
 
     def read_vaccine_deliveries_debw(self):
         query_client = self.client.query_api()
+        stop = datetime.now(UTC).isoformat()
         query = f'''from(bucket:"{self.bucket}")
-            |> range(start: -220d, stop: -200d)
+            |> range(start: {self.start}, stop: {stop})
             |> filter(fn: (r) =>
                 r.region == "DE-BW" and
                 r._field == "dosen"

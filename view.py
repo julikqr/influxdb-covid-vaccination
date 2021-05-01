@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 
 class View(tk.Tk):
     def __init__(self, controller):
+        print("Initializing GUI...")
         super().__init__()
 
         self.controller = controller
@@ -50,9 +51,12 @@ class View(tk.Tk):
                              )
             btn.pack()
 
-    def plot_pandas(self, dataframe):
-        print("plot pandas")
-        x = [1, 2, 3, 4]
-        y = [1, 4, 9, 16]
-        plt.plot(x, y)
+    def plot_df(self, df):
+        print("plot dataframe")
+        list_vaccines = df.impfstoff.unique()
+        for vaccine in list_vaccines:
+            plt.plot(df[df.impfstoff == vaccine]._time,
+                     df[df.impfstoff == vaccine]._value)
+        print(df)
+        plt.legend(list_vaccines)
         plt.show()

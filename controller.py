@@ -41,11 +41,15 @@ class Controller:
             self.view.set_status("Could not write Vaccine delivery data to DB")
 
     def read_vaccine_deliveries_debw(self):
-        tables = self.model.read_vaccine_deliveries_debw()
-        self.view.set_status("Read Germany BW vaccine deliveries")
-        print(tables.head())
-        print(tables.size)
-        self.view.plot_pandas("plot")
+        result_df = self.model.read_vaccine_deliveries_debw()
+        if result_df.size == 0:
+            self.view.set_status("Read Germany BW vaccine deliveries failed")
+        else:
+            self.view.set_status("Read Germany BW vaccine deliveries")
+            self.view.plot_df(result_df)
+        # print(tables.head())
+        # print(tables.size)
+        # self.view.plot_pandas("plot")
         # for table in tables:
         #    print()
         #    for record in table.records:
