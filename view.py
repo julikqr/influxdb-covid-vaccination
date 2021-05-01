@@ -8,7 +8,8 @@ class View(tk.Tk):
         super().__init__()
 
         self.controller = controller
-        self._category_button_names = ["Create", "Read", "Update", "Delete"]
+        self._category_button_names = [
+            "Create vaccine deliveries", "Read", "Update", "Delete"]
         self.status = tk.StringVar()
 
         self.title("My InfluxDB GUI")

@@ -23,3 +23,5 @@ class Controller:
     def button_clicked(self, button):
         status = self.model.execute_query(button)
         self.view.set_status(status)
+        if button == "Create vaccine deliveries":
+            self.model.create_vaccine_deliveries()
