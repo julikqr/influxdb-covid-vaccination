@@ -14,21 +14,19 @@ class Model:
         self.start = "2020-01-01T00:00:00Z"
         self.stop = datetime.now(UTC).isoformat()
 
+        self.query_TestConnectionQuery = f'''from(bucket:"{self.bucket}")
+                    |> range(start: -1d)
+        '''
         self.query_CumulativeGroupByVaccine = f'''from(bucket:"{self.bucket}")
                     |> range(start: {self.start}, stop: {self.stop})
                     |> group(columns: ["impfstoff"], mode:"by")
                     |> filter(fn: (r) => r.region == "DE-BW")
                     |> cumulativeSum()
         '''
-
         self.query_VaccinesMean14d = f'''from(bucket: "{self.bucket}")
                     |> range(start: {self.start}, stop: {self.stop})
                     |> group(columns: ["impfstoff"], mode: "by")
                     |> aggregateWindow(every: 14d, fn: mean, createEmpty: false)
-        '''
-        self.query_TestConnectionQuery = f'''from(bucket:"{self.bucket}")
-                    |> range(start: -1d)
-
         '''
         self.query_StatesWithMostVaccines = f'''from(bucket: "{self.bucket}")
                     |> range(start: {self.start}, stop: {self.stop})
@@ -36,23 +34,21 @@ class Model:
                     |> cumulativeSum()
                     |> max()
         '''
-
         self.query_VaccinesInDEBW = f'''from(bucket:"{self.bucket}")
                     |> range(start: {self.start}, stop: {self.stop})
                     |> filter(fn: (r) =>
                         r.region == "DE-BW" and
                         r._field == "dosen"
                     )
-
         '''
 
     def connect_to_db(self):
         print(f"Connecting to {self.dburl} InfluxDB...")
         self.client = InfluxDBClient(
             url=self.dburl, token=self.token, org=self.org)
-        return self.test_connection()
+        return self._test_connection()
 
-    def test_connection(self):
+    def _test_connection(self):
         try:
             self.client.query_api().query(query=self.query_TestConnectionQuery)
             print("Connected")
@@ -64,14 +60,7 @@ class Model:
 
     def create_vaccine_deliveries(self):
         created = False
-        stop = datetime.now(UTC).isoformat()
-        test_query = f'''from(bucket:"{self.bucket}")
-            |> range(start: {self.start}, stop: {stop})
-            |> filter(fn: (r) =>
-                r._field == "dosen"
-            )
-        '''
-        result_df = self.execute_query(test_query)
+        result_df = self._execute_query(self.query_VaccinesInDEBW)
         if(result_df.empty):
             try:
                 write_client = self.client.write_api()
@@ -89,23 +78,33 @@ class Model:
         return created
 
     def read_vaccine_deliveries_debw(self):
-        df = self.execute_query(self.query_VaccinesInDEBW)
-        return df.rename(columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})
+        df = self._execute_query(self.query_VaccinesInDEBW)
+        if not df.empty:
+            df = df.rename(
+                columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})
+        return df
 
     def read_states_most_vaccines(self):
-        df = self.execute_query(self.query_StatesWithMostVaccines)
-        return df.rename(columns={"region": "x_axis", "_value": "y_axis"})
+        df = self._execute_query(self.query_StatesWithMostVaccines)
+        if not df.empty:
+            df = df.rename(columns={"region": "x_axis", "_value": "y_axis"})
+        return df
 
     def read_vaccine_mean(self):
-        df = self.execute_query(self.query_VaccinesMean14d)
-        return df.rename(columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})
+        df = self._execute_query(self.query_VaccinesMean14d)
+        if not df.empty:
+            df = df.rename(
+                columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})
+        return df
 
     def read_cumulated_deliveries_by_vaccine(self):
-        df = self.execute_query(self.query_CumulativeGroupByVaccine)
-        print(df)
-        return df.rename(columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})
+        df = self._execute_query(self.query_CumulativeGroupByVaccine)
+        if not df.empty:
+            df = df.rename(
+                columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})
+        return df
 
-    def execute_query(self, query):
+    def _execute_query(self, query):
         try:
             query_client = self.client.query_api()
             return query_client.query_data_frame(query)
