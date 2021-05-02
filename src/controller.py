@@ -44,17 +44,16 @@ class Controller:
 
     def read_vaccine_deliveries_debw(self):
         data = self.model.read_vaccine_deliveries_debw()
-        if data.size == 0:
+        if data.empty:
             self.view.set_status("Please create data first")
         else:
-            print(data)
             self.view.set_status("Read Germany BW vaccine deliveries")
             self.view.plot_line_chart(
                 data, "time", "vaccines", "Germany Baden-Wuerttemberg vaccine deliveries")
 
     def read_states_most_vaccines(self):
         data = self.model.read_states_most_vaccines()
-        if len(data) == 0:
+        if data.empty:
             self.view.set_status("Please create data first")
         else:
             self.view.set_status("Read states with most vaccines")
@@ -63,13 +62,21 @@ class Controller:
 
     def read_vaccine_mean(self):
         data = self.model.read_vaccine_mean()
-        self.view.plot_line_chart(
-            data, "time", "vaccines", "Germany 14d mean vaccine deliveries")
+        if data.empty:
+            self.view.set_status("Please create data first")
+        else:
+            self.view.set_status("Read Germany 14d mean vaccine deliveries")
+            self.view.plot_line_chart(
+                data, "time", "vaccines", "Germany 14d mean vaccine deliveries")
 
     def read_cumulated_deliveries_by_vaccine(self):
         data = self.model.read_cumulated_deliveries_by_vaccine()
-        self.view.plot_line_chart(
-            data, "time", "vaccine", "Germany cumulated vaccine deliveries in DE-BW")
+        if data.empty:
+            self.view.set_status("Please create data first")
+        else:
+            self.view.set_status("Read cumulated deliveries")
+            self.view.plot_line_chart(
+                data, "time", "vaccine", "Germany cumulated vaccine deliveries in DE-BW")
 
     def delete_vaccine_deliveries(self):
         if(self.model.delete("vaccine_delivery")):
