@@ -6,14 +6,13 @@ from pytz import UTC
 
 class Model:
     def __init__(self, token="my-super-secret-auth-token", org="my-org", bucket="my-bucket", url="http://localhost:8086"):
-        # self.client
         self.token = token
         self.bucket = bucket
         self.org = org
         self.dburl = url
-        self.start = "2020-01-01T00:00:00Z"
-
         self.url_vaccine_deliveries = "https://impfdashboard.de/static/data/germany_deliveries_timeseries_v2.tsv"
+        self.start = "2020-01-01T00:00:00Z"
+        self.stop = datetime.now(UTC).isoformat()
 
     def connect_to_db(self):
         print(f"Connecting to {self.dburl} InfluxDB...")
@@ -35,18 +34,29 @@ class Model:
 
     def create_vaccine_deliveries(self):
         created = False
-        try:
-            write_client = self.client.write_api()
-            df = pd.read_csv(self.url_vaccine_deliveries, sep='\t')
-            df.set_index("date", inplace=True)
-            write_client.write(self.bucket, record=df, data_frame_measurement_name='vaccine_delivery',
-                               data_frame_tag_columns=['region', 'impfstoff'])
-            write_client.close()
+        stop = datetime.now(UTC).isoformat()
+        test_query = f'''from(bucket:"{self.bucket}")
+            |> range(start: {self.start}, stop: {stop})
+            |> filter(fn: (r) =>
+                r._field == "dosen"
+            )
+        '''
+        result_df = self.execute_query(test_query)
+        if(result_df.empty):
+            try:
+                write_client = self.client.write_api()
+                df = pd.read_csv(self.url_vaccine_deliveries, sep='\t')
+                df.set_index("date", inplace=True)
+                write_client.write(self.bucket, record=df, data_frame_measurement_name='vaccine_delivery',
+                                   data_frame_tag_columns=['region', 'impfstoff'])
+                write_client.close()
+                created = True
+            except Exception as exc:
+                print(exc)
+            print("Data Created; Closed client")
+        else:
             created = True
-        except Exception as exc:
-            print(exc)
         return created
-        print("Data Created; Closed client")
 
     def read_vaccine_deliveries_debw(self):
         stop = datetime.now(UTC).isoformat()
@@ -70,14 +80,20 @@ class Model:
         states = dict()
 
         df_result = self.execute_query(query)
-        regions_list = df_result.region.unique()
-        for region in regions_list:
-            states[region] = df_result[df_result.region == region]._value.sum()
+        if not df_result.empty:
+            regions_list = df_result.region.unique()
+            for region in regions_list:
+                states[region] = df_result[df_result.region ==
+                                           region]._value.sum()
         return states
 
     def execute_query(self, query):
-        query_client = self.client.query_api()
-        return query_client.query_data_frame(query)
+        try:
+            query_client = self.client.query_api()
+            return query_client.query_data_frame(query)
+        except Exception as exc:
+            print(exc)
+            return pd.DataFrame()
 
     def delete(self, measurement):
         deleted = False
