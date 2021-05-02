@@ -29,6 +29,10 @@ class Controller:
                 self.delete_vaccine_deliveries()
             if button == "Read - German states with most vaccines":
                 self.read_states_most_vaccines()
+            if button == "Read - 14d mean vaccine delivery":
+                self.read_vaccine_mean()
+            if button == "Read - Cumulated deliveries grouped by vaccine":
+                self.read_cumulated_deliveries_by_vaccine()
         else:
             self.connect_to_db()
 
@@ -39,21 +43,33 @@ class Controller:
             self.view.set_status("Could not write Vaccine delivery data to DB")
 
     def read_vaccine_deliveries_debw(self):
-        result_df = self.model.read_vaccine_deliveries_debw()
-        if result_df.size == 0:
+        data = self.model.read_vaccine_deliveries_debw()
+        if data.size == 0:
             self.view.set_status("Please create data first")
         else:
+            print(data)
             self.view.set_status("Read Germany BW vaccine deliveries")
-            self.view.plot_df(
-                result_df, "Germany Baden-Wuerttemberg vaccine deliveries", "vaccines")
+            self.view.plot_line_chart(
+                data, "time", "vaccines", "Germany Baden-Wuerttemberg vaccine deliveries")
 
     def read_states_most_vaccines(self):
-        result_dict = self.model.read_states_most_vaccines()
-        if len(result_dict) == 0:
+        data = self.model.read_states_most_vaccines()
+        if len(data) == 0:
             self.view.set_status("Please create data first")
         else:
             self.view.set_status("Read states with most vaccines")
-            self.view.plot_result(result_dict)
+            self.view.plot_bar_chart(
+                data, "region", "vaccines", "Vaccines per state")
+
+    def read_vaccine_mean(self):
+        data = self.model.read_vaccine_mean()
+        self.view.plot_line_chart(
+            data, "time", "vaccines", "Germany 14d mean vaccine deliveries")
+
+    def read_cumulated_deliveries_by_vaccine(self):
+        data = self.model.read_cumulated_deliveries_by_vaccine()
+        self.view.plot_line_chart(
+            data, "time", "vaccine", "Germany cumulated vaccine deliveries in DE-BW")
 
     def delete_vaccine_deliveries(self):
         if(self.model.delete("vaccine_delivery")):

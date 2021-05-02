@@ -13,11 +13,15 @@ class View(tk.Tk):
 
         self.controller = controller
         self._category_button_names = [
-            "Create vaccine deliveries", "Read - Germany BW vaccine deliveries", "Read - German states with most vaccines", "Delete vaccine deliveries"]
+            "Create vaccine deliveries",
+            "Read - Germany BW vaccine deliveries",
+            "Read - German states with most vaccines",
+            "Read - 14d mean vaccine delivery",
+            "Read - Cumulated deliveries grouped by vaccine",
+            "Delete vaccine deliveries"]
         self.status = tk.StringVar()
 
         self.title("My InfluxDB GUI")
-        self.status.set("Please select a query to execute")
         self._create_frames()
         self._create_label()
         self._create_buttons()
@@ -52,22 +56,25 @@ class View(tk.Tk):
                              )
             btn.pack()
 
-    def plot_df(self, df, title, ylabel):
+    def plot_line_chart(self, data, x_label, y_label, title):
         plt.clf()
-        print("plot dataframe")
-        list_vaccines = df.impfstoff.unique()
-        for vaccine in list_vaccines:
-            plt.plot(df[df.impfstoff == vaccine]._time,
-                     df[df.impfstoff == vaccine]._value)
+        lines = data.line_name.unique()
+        for line in lines:
+            plt.plot(data[data.line_name == line].x_axis,
+                     data[data.line_name == line].y_axis)
+        plt.legend(lines)
         plt.xticks(rotation=45)
-        plt.ylabel(ylabel)
-        plt.legend(list_vaccines)
+        plt.ylabel(y_label)
+        plt.xlabel(x_label)
         plt.title(title)
         plt.show()
 
-    def plot_result(self, results):
-        print(results)
+    def plot_bar_chart(self, data, x_label, y_label, title):
         plt.clf()
-        plt.bar(range(len(results)), list(results.values()), align='center')
-        plt.xticks(range(len(results)), list(results.keys()))
+        x_axis_range = np.arange(len(data.x_axis))
+        plt.bar(x_axis_range, data.y_axis, align='center')
+        plt.xticks(x_axis_range, data.x_axis, rotation=90)
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.title(title)
         plt.show()

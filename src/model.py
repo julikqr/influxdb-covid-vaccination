@@ -14,6 +14,38 @@ class Model:
         self.start = "2020-01-01T00:00:00Z"
         self.stop = datetime.now(UTC).isoformat()
 
+        self.query_CumulativeGroupByVaccine = f'''from(bucket:"{self.bucket}")
+                    |> range(start: {self.start}, stop: {self.stop})
+                    |> group(columns: ["impfstoff"], mode:"by")
+                    |> filter(fn: (r) => r.region == "DE-BW")
+                    |> cumulativeSum()
+        '''
+
+        self.query_VaccinesMean14d = f'''from(bucket: "{self.bucket}")
+                    |> range(start: {self.start}, stop: {self.stop})
+                    |> group(columns: ["impfstoff"], mode: "by")
+                    |> aggregateWindow(every: 14d, fn: mean, createEmpty: false)
+        '''
+        self.query_TestConnectionQuery = f'''from(bucket:"{self.bucket}")
+                    |> range(start: -1d)
+
+        '''
+        self.query_StatesWithMostVaccines = f'''from(bucket: "{self.bucket}")
+                    |> range(start: {self.start}, stop: {self.stop})
+                    |> group(columns: ["region"])
+                    |> cumulativeSum()
+                    |> max()
+        '''
+
+        self.query_VaccinesInDEBW = f'''from(bucket:"{self.bucket}")
+                    |> range(start: {self.start}, stop: {self.stop})
+                    |> filter(fn: (r) =>
+                        r.region == "DE-BW" and
+                        r._field == "dosen"
+                    )
+
+        '''
+
     def connect_to_db(self):
         print(f"Connecting to {self.dburl} InfluxDB...")
         self.client = InfluxDBClient(
@@ -22,10 +54,8 @@ class Model:
 
     def test_connection(self):
         try:
-            test_query = f'''from(bucket:"{self.bucket}")
-                |> range(start: -1d)
-            '''
-            self.client.query_api().query(query=test_query)
+            self.client.query_api().query(query=self.query_TestConnectionQuery)
+            print("Connected")
             return True
         except Exception as exc:
             print("Connection failed:")
@@ -59,33 +89,21 @@ class Model:
         return created
 
     def read_vaccine_deliveries_debw(self):
-        stop = datetime.now(UTC).isoformat()
-        query = f'''from(bucket:"{self.bucket}")
-            |> range(start: {self.start}, stop: {stop})
-            |> filter(fn: (r) =>
-                r.region == "DE-BW" and
-                r._field == "dosen"
-            )
-        '''
-        return self.execute_query(query)
+        df = self.execute_query(self.query_VaccinesInDEBW)
+        return df.rename(columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})
 
     def read_states_most_vaccines(self):
-        stop = datetime.now(UTC).isoformat()
-        query = f'''from(bucket:"{self.bucket}")
-            |> range(start: {self.start}, stop: {stop})
-            |> filter(fn: (r) =>
-                r._field == "dosen"
-            )
-        '''
-        states = dict()
+        df = self.execute_query(self.query_StatesWithMostVaccines)
+        return df.rename(columns={"region": "x_axis", "_value": "y_axis"})
 
-        df_result = self.execute_query(query)
-        if not df_result.empty:
-            regions_list = df_result.region.unique()
-            for region in regions_list:
-                states[region] = df_result[df_result.region ==
-                                           region]._value.sum()
-        return states
+    def read_vaccine_mean(self):
+        df = self.execute_query(self.query_VaccinesMean14d)
+        return df.rename(columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})
+
+    def read_cumulated_deliveries_by_vaccine(self):
+        df = self.execute_query(self.query_CumulativeGroupByVaccine)
+        print(df)
+        return df.rename(columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})
 
     def execute_query(self, query):
         try:
