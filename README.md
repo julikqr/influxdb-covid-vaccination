@@ -48,8 +48,16 @@ docker run -p 8086:8086 -e DOCKER_INFLUXDB_INIT_MODE=setup -e DOCKER_INFLUXDB_IN
 ``` 
 2. Navigate to project directory and run `main.py`
 ```
-python ./main.py
+python .src/main.py
 ```
+### How to run unittests
+
+There are two unittests in this project: `test_model.py` and `test_view.py`. One tests the model and one the view. There's no test for the `controller` as its only controlling `model` and `view`. You can run unittests with:
+```bash
+python .\src\test_model.py          # runs unittest for model
+python .\src\test_view.py           # runs unittest for view
+```
+
 
 ---
 
@@ -71,5 +79,5 @@ docker container ls
 
 ---
 
-docker run --name influxdb -p 8086:8086 -v C:\Users\julia\docker-influx-data:/root/.influxdbv2 influxdb:2.0.4
+
 
