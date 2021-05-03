@@ -1,18 +1,43 @@
+"""TestView
+        * Unittest
+        * This file contains the TestView
+        * testing the view
+        * test plotting and buttons
+
+    Attributes:
+        * name: Julian S
+        * date: 03.05.2021
+        * version: 0.0.1 Beta - free
+"""
+
 import unittest
 from controller import Controller
 from view import View
 import pandas as pd
 
 
-class TestCalc(unittest.TestCase):
+class TestView(unittest.TestCase):
+    """TestView
+        * Unittest for view.py
+    Args:
+        unittest (unittest): TestView inherits from unittest to contain all of its functionity 
+    """
 
     @classmethod
     def setUpClass(cls):
-        # runs once before first start
+        """setUpClass
+            * create a controlle that does not start the gui
+            * creat a view (without a gui)
+        """
         cls.controller = Controller(start_gui=False)
         cls.view = View(cls.controller)
 
     def test_create_buttons(self):
+        """test_create_buttons
+            * create some buttons using strings
+            * create some buttons using strings and ints
+        """
+
         self.view._category_button_names = [
             "Create - vaccine deliveries",
             "Read - Germany BW vaccine deliveries"
@@ -28,6 +53,11 @@ class TestCalc(unittest.TestCase):
             self.view._create_buttons()
 
     def test_plot_line_chart(self):
+        """test_plot_line_chart
+            * plot a line using correct data
+            * plot a line using wrong data
+            * plot a line using nothing
+        """
         test_data = pd.DataFrame({
             'y_axis': [48000, 52800, 91200, 86400, 127200],
             '_field': ['dosen', 'dosen', 'dosen', 'dosen', 'dosen'],
@@ -48,6 +78,11 @@ class TestCalc(unittest.TestCase):
             self.view.plot_line_chart()
 
     def test_plot_bar_chart(self):
+        """test_plot_bar_chart
+            * plot a bar using correct data
+            * plot a bar using wrong data
+            * plot a bar using nothing
+        """
         test_data = pd.DataFrame({
             'y_axis': [690014, 1000762, 256260, 3040596, 3753009],
             '_field': ['dosen', 'dosen', 'dosen', 'dosen', 'dosen'],

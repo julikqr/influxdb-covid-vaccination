@@ -1,3 +1,14 @@
+"""TestModel
+        * Unittest
+        * This file contains the TestModel
+        * testing database read, write and delete
+
+    Attributes:
+        * name: Julian S
+        * date: 03.05.2021
+        * version: 0.0.1 Beta - free
+"""
+
 import unittest
 from model import Model
 import pandas as pd
@@ -5,15 +16,31 @@ import pandas.testing as pd_testing
 
 
 class TestModel(unittest.TestCase):
+    """TestView
+        * Unittest for model.py
+        * This unittest needs a connection to InfluxDB as it is also testing write/read and delte
+    Args:
+        unittest (unittest): TestModel inherits from unittest to contain all of its functionity 
+    """
 
     @classmethod
     def setUpClass(cls):
-        # runs once before first start
+        """setUpClass
+            * create a model to test
+            * connect model to database
+            * create data
+        """
         cls.model = Model()
         cls.model.connect_to_db()
         cls.model.create_vaccine_deliveries()
 
     def test_client_db_connectiont(self):
+        """test_cluent_db_connection
+            * connect to InfluxDB with wrong url
+            * connect to InfluxDB with wrong token
+            * connect to InfluxDB with wrong bucket
+            * connect to InfluxDB with correct authentication
+        """
         model = Model(url="CompltelyWrongUrl")
         self.assertEqual(model.connect_to_db(), False)
 
@@ -28,6 +55,9 @@ class TestModel(unittest.TestCase):
         self.assertEqual(model.connect_to_db(), True)
 
     def test_query_vaccine_deliveries_debw(self):
+        """Test vaccine delivery of DE-BW query
+            * compare expected dataframe to result dataframe
+        """
         result_df = self.model.read_vaccine_deliveries_debw().head()
         result_df = result_df[['y_axis', '_field',
                                '_measurement', 'line_name', 'region']]
@@ -42,6 +72,9 @@ class TestModel(unittest.TestCase):
         pd.testing.assert_frame_equal(result_df, expected_df)
 
     def test_query_states_most_vaccines(self):
+        """Test states with most vaccines query
+            * compare expected dataframe to result dataframe
+        """
         result_df = self.model.read_states_most_vaccines().head()
         result_df = result_df[['y_axis', '_field',
                                '_measurement', 'impfstoff', 'x_axis']]
@@ -56,6 +89,10 @@ class TestModel(unittest.TestCase):
         pd.testing.assert_frame_equal(result_df, expected_df)
 
     def test_execute_query(self):
+        """Test query execution function
+            * test with wrong query
+            * test with correct query that should return an empty dataframe
+        """
         query = "CompletlyWrongQuery"
         result_df = self.model._execute_query(query)
         expected_df = pd.DataFrame()
@@ -71,6 +108,9 @@ class TestModel(unittest.TestCase):
         pd.testing.assert_frame_equal(result_df, expected_df)
 
     def test_delete(self):
+        """Test delete function
+            * delete some data and create it afterwards again
+        """
         result = self.model.delete("vaccine_delivery")
         self.assertEqual(result, True)
 

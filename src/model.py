@@ -1,3 +1,14 @@
+"""Model
+        * This file contains the Model
+        * handle database communication
+        * read, write and delete data from/to database
+
+    Attributes:
+        * name: Julian S
+        * date: 03.05.2021
+        * version: 0.0.1 Beta - free
+"""
+
 from influxdb_client import InfluxDBClient
 import pandas as pd
 from datetime import datetime
@@ -6,6 +17,15 @@ from pytz import UTC
 
 class Model:
     def __init__(self, token="my-super-secret-auth-token", org="my-org", bucket="my-bucket", url="http://localhost:8086"):
+        """__init__
+            * initialize authentication data
+            * initialize flux queries
+        Args:
+            token (str, optional): InfluxDB Authentication token. Defaults to "my-super-secret-auth-token".
+            org (str, optional): InfluxDB default organization. Defaults to "my-org".
+            bucket (str, optional): InfluxDB default bucket. Defaults to "my-bucket".
+            url (str, optional): InfluxDB server adress. Defaults to "http://localhost:8086".
+        """
         self.token = token
         self.bucket = bucket
         self.org = org
@@ -43,12 +63,23 @@ class Model:
         '''
 
     def connect_to_db(self):
+        """connect_to_db
+            * set up InfluxDB Client. Used to communicate with InfluxDB
+            * test connection 
+        Returns:
+            bool: Connection succesful or not
+        """
         print(f"Connecting to {self.dburl} InfluxDB...")
         self.client = InfluxDBClient(
             url=self.dburl, token=self.token, org=self.org)
         return self._test_connection()
 
     def _test_connection(self):
+        """test_connection
+            * test connection to InfluxDB
+        Returns:
+            bool: Connection working or not
+        """
         try:
             self.client.query_api().query(query=self.query_TestConnectionQuery)
             return True
@@ -56,6 +87,12 @@ class Model:
             return False
 
     def create_vaccine_deliveries(self):
+        """create_vaccine_deliveries
+            * reads data from csv
+            * writes data to InfluxDB
+        Returns:
+            bool: Data was written succesful or not
+        """
         created = False
         result_df = self._execute_query(self.query_VaccinesInDEBW)
         if(result_df.empty):
@@ -76,6 +113,12 @@ class Model:
         return created
 
     def read_vaccine_deliveries_debw(self):
+        """read vaccine deliveries from DE-BW
+            * execute flux query
+            * rename columns to fit plot function of View
+        Returns:
+            Pandas Datframe: A Dataframe with result data
+        """
         df = self._execute_query(self.query_VaccinesInDEBW)
         if not df.empty:
             df = df.rename(
@@ -83,12 +126,24 @@ class Model:
         return df
 
     def read_states_most_vaccines(self):
+        """read vaccine deliveries from DE-BW
+            * execute flux query
+            * rename columns to fit plot function of View
+        Returns:
+            Pandas Datframe: A Dataframe with result data
+        """
         df = self._execute_query(self.query_StatesWithMostVaccines)
         if not df.empty:
             df = df.rename(columns={"region": "x_axis", "_value": "y_axis"})
         return df
 
     def read_vaccine_mean(self):
+        """read vaccine deliveries from DE-BW
+            * execute flux query
+            * rename columns to fit plot function of View
+        Returns:
+            Pandas Datframe: A Dataframe with result data
+        """
         df = self._execute_query(self.query_VaccinesMean14d)
         if not df.empty:
             df = df.rename(
@@ -96,6 +151,12 @@ class Model:
         return df
 
     def read_cumulated_deliveries_by_vaccine(self):
+        """read vaccine deliveries from DE-BW
+            * execute flux query
+            * rename columns to fit plot function of View
+        Returns:
+            Pandas Datframe: A Dataframe with result data
+        """
         df = self._execute_query(self.query_CumulativeGroupByVaccine)
         if not df.empty:
             df = df.rename(
@@ -103,14 +164,29 @@ class Model:
         return df
 
     def _execute_query(self, query):
+        """execute flux query
+            * execute a given flux query
+        Args:
+            query (str): flux query
+
+        Returns:
+            Pandas Dataframe: A Dataframe with the result. Might be an empty Datframe
+        """
         try:
             query_client = self.client.query_api()
             return query_client.query_data_frame(query)
         except Exception as exc:
-            pass
             return pd.DataFrame()
 
     def delete(self, measurement):
+        """delete given measurement
+
+        Args:
+            measurement (str): Name of measurement to delete
+
+        Returns:
+            bool: Return True if deleting was succesfull
+        """
         deleted = False
         try:
             delete_client = self.client.delete_api()
