@@ -13,6 +13,8 @@ from influxdb_client import InfluxDBClient
 import pandas as pd
 from datetime import datetime
 from pytz import UTC
+import os
+from pathlib import Path
 
 
 class Model:
@@ -99,7 +101,9 @@ class Model:
             try:
                 write_client = self.client.write_api()
                 #df = pd.read_csv(self.url_vaccine_deliveries, sep='\t')
-                df = pd.read_csv('data\\vaccine_deliveries.tsv', sep='\t')
+                vaccines_csv_path = self._get_data_directory_file(
+                    'vaccine_deliveries.tsv')
+                df = pd.read_csv(vaccines_csv_path, sep='\t')
                 #df.to_csv("out.tsv", sep='\t', index=False)
                 df.set_index("date", inplace=True)
                 write_client.write(self.bucket, record=df, data_frame_measurement_name='vaccine_delivery',
@@ -197,3 +201,18 @@ class Model:
         except Exception as exc:
             pass
         return deleted
+
+    def _get_data_directory_file(self, filename):
+        """get_data_directory_file
+            * gets full path of a file inside data directory
+        Args:
+            filename (str): String of a filename inside data directory
+        Returns:
+            str: full path to given file as a str 
+        """
+        if type(filename) is str:
+            curdir = os.path.dirname(os.path.realpath(__file__))
+            return Path(curdir).parents[0] / 'data' / filename
+        else:
+            raise TypeError()
+            return ""
