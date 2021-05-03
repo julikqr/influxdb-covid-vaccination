@@ -116,6 +116,16 @@ class TestModel(unittest.TestCase):
 
         self.model.create_vaccine_deliveries()
 
+    def test_get_data_directory_file(self):
+        """Test get data directory file
+            * test a function call with a number
+            * test a function call with a string
+        """
+        with self.assertRaises(TypeError):
+            self.model._get_data_directory_file(42)
+
+        self.model._get_data_directory_file("HelloWorld")
+
 
 if __name__ == "__main__":
     unittest.main()
