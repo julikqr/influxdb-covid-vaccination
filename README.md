@@ -20,6 +20,7 @@ https://impfdashboard.de/daten
 ---
 
 ## Prerequisites
+Works on Windows, Mac and Linux. Docker installation on Linux is different, see here [Docker Linux](https://docs.docker.com/engine/install/ubuntu/). Commands were tested on Windows, you might have to adapt the paths to fit your system. 
 1. Install Python from https://www.python.org/
 2. Install Docker Desktop from https://www.docker.com/get-started (Maybe a Restart is needed to run Docker commands from console)
 3. Clone this repository and **navigate to the project directory**
@@ -54,8 +55,8 @@ python .src/main.py
 
 There are two unittests in this project: `test_model.py` and `test_view.py`. One tests the model and one the view. There's no test for the `controller` as its only controlling `model` and `view`. You can run unittests with:
 ```bash
-python .\src\test_model.py          # runs unittest for model
-python .\src\test_view.py           # runs unittest for view
+python ./src/test_model.py          # runs unittest for model
+python ./src/test_view.py           # runs unittest for view
 ```
 
 
