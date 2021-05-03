@@ -13,12 +13,13 @@ class View(tk.Tk):
 
         self.controller = controller
         self._category_button_names = [
-            "Create vaccine deliveries",
+            "Create - vaccine deliveries",
             "Read - Germany BW vaccine deliveries",
             "Read - German states with most vaccines",
             "Read - 14d mean vaccine delivery",
             "Read - Cumulated deliveries grouped by vaccine",
-            "Delete vaccine deliveries"]
+            "Delete - vaccine deliveries",
+            "Run Unittests"]
         self.status = tk.StringVar()
 
         self.title("My InfluxDB GUI")

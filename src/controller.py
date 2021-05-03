@@ -21,18 +21,20 @@ class Controller:
 
     def button_clicked(self, button):
         if self.dbstatus:
-            if button == "Create vaccine deliveries":
+            if button == "Create - vaccine deliveries":
                 self.create_vaccine_deliveries()
             if button == "Read - Germany BW vaccine deliveries":
                 self.read_vaccine_deliveries_debw()
-            if button == "Delete vaccine deliveries":
-                self.delete_vaccine_deliveries()
             if button == "Read - German states with most vaccines":
                 self.read_states_most_vaccines()
             if button == "Read - 14d mean vaccine delivery":
                 self.read_vaccine_mean()
             if button == "Read - Cumulated deliveries grouped by vaccine":
                 self.read_cumulated_deliveries_by_vaccine()
+            if button == "Delete - vaccine deliveries":
+                self.delete_vaccine_deliveries()
+            if button == "Run Unittests":
+                self.run_unittest()
         else:
             self.connect_to_db()
 
@@ -79,7 +81,11 @@ class Controller:
                 data, "time", "vaccine", "Germany cumulated vaccine deliveries in DE-BW")
 
     def delete_vaccine_deliveries(self):
+        self.view.set_status("Deleting data... Please wait a moment")
         if(self.model.delete("vaccine_delivery")):
             self.view.set_status("Vaccine deliveries deleted")
         else:
             self.view.set_status("Failed to delete vaccine deliveries")
+
+    def run_unittest(self):
+        self.view.set_status("Run Unittests")
