@@ -19,7 +19,7 @@ class View(tk.Tk):
             "Read - 14d mean vaccine delivery",
             "Read - Cumulated deliveries grouped by vaccine",
             "Delete - vaccine deliveries",
-            "Run Unittests"]
+        ]
         self.status = tk.StringVar()
 
         self.title("My InfluxDB GUI")
@@ -49,15 +49,18 @@ class View(tk.Tk):
 
     def _create_buttons(self):
         for name in self._category_button_names:
-            btn = ttk.Button(self.main_frame, text=name, width=50,
-                             command=(
-                                 lambda button=name: self.controller.button_clicked(
-                                     button)
-                             )
-                             )
-            btn.pack()
+            if type(name) is str:
+                btn = ttk.Button(self.main_frame, text=name, width=50,
+                                 command=(
+                                     lambda button=name: self.controller.button_clicked(
+                                         button)
+                                 )
+                                 )
+                btn.pack()
+            else:
+                raise TypeError()
 
-    def plot_line_chart(self, data, x_label, y_label, title):
+    def plot_line_chart(self, data, x_label, y_label, title, plot=True):
         plt.clf()
         lines = data.line_name.unique()
         for line in lines:
@@ -68,9 +71,10 @@ class View(tk.Tk):
         plt.ylabel(y_label)
         plt.xlabel(x_label)
         plt.title(title)
-        plt.show()
+        if plot:
+            plt.show()
 
-    def plot_bar_chart(self, data, x_label, y_label, title):
+    def plot_bar_chart(self, data, x_label, y_label, title, plot=True):
         plt.clf()
         x_axis_range = np.arange(len(data.x_axis))
         plt.bar(x_axis_range, data.y_axis, align='center')
@@ -78,4 +82,5 @@ class View(tk.Tk):
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         plt.title(title)
-        plt.show()
+        if plot:
+            plt.show()

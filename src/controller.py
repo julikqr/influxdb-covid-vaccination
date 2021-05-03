@@ -3,13 +3,14 @@ from view import View
 
 
 class Controller:
-    def __init__(self):
+    def __init__(self, start_gui=True):
         self.model = Model()
         self.view = View(self)
         self.dbstatus = False
 
         self.connect_to_db()
-        self.view.start_gui()
+        if start_gui:
+            self.view.start_gui()
 
     def connect_to_db(self):
         self.dbstatus = self.model.connect_to_db()

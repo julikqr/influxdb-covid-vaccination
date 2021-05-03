@@ -51,11 +51,8 @@ class Model:
     def _test_connection(self):
         try:
             self.client.query_api().query(query=self.query_TestConnectionQuery)
-            print("Connected")
             return True
         except Exception as exc:
-            print("Connection failed:")
-            print(exc)
             return False
 
     def create_vaccine_deliveries(self):
@@ -65,16 +62,15 @@ class Model:
             try:
                 write_client = self.client.write_api()
                 #df = pd.read_csv(self.url_vaccine_deliveries, sep='\t')
-                df = pd.read_csv('data\vaccine_deliveries.tsv', sep='\t')
-                df.to_csv("out.tsv", sep='\t', index=False)
+                df = pd.read_csv('data\\vaccine_deliveries.tsv', sep='\t')
+                #df.to_csv("out.tsv", sep='\t', index=False)
                 df.set_index("date", inplace=True)
                 write_client.write(self.bucket, record=df, data_frame_measurement_name='vaccine_delivery',
                                    data_frame_tag_columns=['region', 'impfstoff'])
                 write_client.close()
                 created = True
             except Exception as exc:
-                print(exc)
-            print("Data Created; Closed client")
+                pass
         else:
             created = True
         return created
@@ -111,7 +107,7 @@ class Model:
             query_client = self.client.query_api()
             return query_client.query_data_frame(query)
         except Exception as exc:
-            print(exc)
+            pass
             return pd.DataFrame()
 
     def delete(self, measurement):
@@ -123,5 +119,5 @@ class Model:
                 self.start, stop, f'_measurement={measurement}', self.bucket, self.org)
             deleted = True
         except Exception as exc:
-            print(exc)
+            pass
         return deleted
