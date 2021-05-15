@@ -57,14 +57,12 @@ class Controller:
                 self.read_vaccine_deliveries_debw()
             if button == "Read - German states with most vaccines":
                 self.read_states_most_vaccines()
-            if button == "Read - 14d mean vaccine delivery":
-                self.read_vaccine_mean()
+            if button == "Read - 14d sum vaccine delivery":
+                self.read_vaccine_sum()
             if button == "Read - Cumulated deliveries grouped by vaccine":
                 self.read_cumulated_deliveries_by_vaccine()
             if button == "Delete - vaccine deliveries":
                 self.delete_vaccine_deliveries()
-            if button == "Run Unittests":
-                self.run_unittest()
         else:
             self.connect_to_db()
 
@@ -106,19 +104,19 @@ class Controller:
             self.view.plot_bar_chart(
                 data, "region", "vaccines", "Vaccines per state")
 
-    def read_vaccine_mean(self):
-        """Read vaccine deliveries 14 days mean
+    def read_vaccine_sum(self):
+        """Read vaccine deliveries 14 days sum
             * read the data
             * set a status message to the gui
             * plot the data in a line chart
         """
-        data = self.model.read_vaccine_mean()
+        data = self.model.read_vaccine_sum()
         if data.empty:
             self.view.set_status("Please create data first")
         else:
-            self.view.set_status("Read Germany 14d mean vaccine deliveries")
+            self.view.set_status("Read Germany 14d sum vaccine deliveries")
             self.view.plot_line_chart(
-                data, "time", "vaccines", "Germany 14d mean vaccine deliveries")
+                data, "time", "vaccines", "Germany 14d sum vaccine deliveries")
 
     def read_cumulated_deliveries_by_vaccine(self):
         """Read cumulated deliveries data grouped by vaccine

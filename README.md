@@ -49,7 +49,7 @@ docker run -p 8086:8086 -e DOCKER_INFLUXDB_INIT_MODE=setup -e DOCKER_INFLUXDB_IN
 ``` 
 2. Navigate to project directory and run `main.py`
 ```
-python .src/main.py
+python src/main.py
 ```
 ### How to run unittests
 

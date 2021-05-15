@@ -45,10 +45,10 @@ class Model:
                     |> filter(fn: (r) => r.region == "DE-BW")
                     |> cumulativeSum()
         '''
-        self.query_VaccinesMean14d = f'''from(bucket: "{self.bucket}")
+        self.query_VaccinesSum14d = f'''from(bucket: "{self.bucket}")
                     |> range(start: {self.start}, stop: {self.stop})
                     |> group(columns: ["impfstoff"], mode: "by")
-                    |> aggregateWindow(every: 14d, fn: mean, createEmpty: false)
+                    |> aggregateWindow(every: 14d, fn: sum, createEmpty: false)
         '''
         self.query_StatesWithMostVaccines = f'''from(bucket: "{self.bucket}")
                     |> range(start: {self.start}, stop: {self.stop})
@@ -141,14 +141,14 @@ class Model:
             df = df.rename(columns={"region": "x_axis", "_value": "y_axis"})
         return df
 
-    def read_vaccine_mean(self):
+    def read_vaccine_sum(self):
         """read vaccine deliveries from DE-BW
             * execute flux query
             * rename columns to fit plot function of View
         Returns:
             Pandas Datframe: A Dataframe with result data
         """
-        df = self._execute_query(self.query_VaccinesMean14d)
+        df = self._execute_query(self.query_VaccinesSum14d)
         if not df.empty:
             df = df.rename(
                 columns={"_time": "x_axis", "_value": "y_axis", "impfstoff": "line_name"})

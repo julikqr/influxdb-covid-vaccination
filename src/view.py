@@ -33,7 +33,7 @@ class View(tk.Tk):
             "Create - vaccine deliveries",
             "Read - Germany BW vaccine deliveries",
             "Read - German states with most vaccines",
-            "Read - 14d mean vaccine delivery",
+            "Read - 14d sum vaccine delivery",
             "Read - Cumulated deliveries grouped by vaccine",
             "Delete - vaccine deliveries",
         ]
