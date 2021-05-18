@@ -100,11 +100,9 @@ class Model:
         if(result_df.empty):
             try:
                 write_client = self.client.write_api()
-                #df = pd.read_csv(self.url_vaccine_deliveries, sep='\t')
                 vaccines_csv_path = self._get_data_directory_file(
                     'vaccine_deliveries.tsv')
                 df = pd.read_csv(vaccines_csv_path, sep='\t')
-                #df.to_csv("out.tsv", sep='\t', index=False)
                 df.set_index("date", inplace=True)
                 write_client.write(self.bucket, record=df, data_frame_measurement_name='vaccine_delivery',
                                    data_frame_tag_columns=['region', 'impfstoff'])
